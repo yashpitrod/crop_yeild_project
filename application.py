@@ -3,6 +3,7 @@ from flask import Flask,request,jsonify,render_template
 import pickle
 import numpy as np
 import pandas as pd
+import os
 
 rf_regressor=pickle.load(open('models/rf_regressor.pkl','rb'))
 preprocessor=pickle.load(open('models/preprocessor.pkl','rb'))
@@ -46,6 +47,6 @@ def predict():
     else:
         return render_template('home.html')
 
-if __name__=="__main__":   #yeh batata hai ki yeh hamare application ka base hai server chalu karne ke liye
-    app.run(debug=True)     #auto reload ke liye ddebug=true
-
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 7860))
+    app.run(host="0.0.0.0", port=port)
