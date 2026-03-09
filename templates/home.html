@@ -4,179 +4,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crop Yield Prediction</title>
+    <title>Predict - CropYield AI</title>
+    <meta name="description" content="Enter your agricultural parameters to get an accurate ML-powered crop yield prediction.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
+        /* CSS Reset & Variables */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --background: #050a05;
+            --background-secondary: #0a120a;
+            --foreground: #f0f4f0;
+            --foreground-muted: #9ca89c;
+            --card: rgba(20, 35, 20, 0.6);
+            --card-solid: rgba(15, 25, 15, 0.95);
+            --card-border: rgba(60, 100, 60, 0.3);
+            --card-border-hover: rgba(60, 100, 60, 0.5);
+            --input-bg: rgba(10, 20, 10, 0.8);
+            --input-border: rgba(60, 100, 60, 0.25);
+            --input-focus: rgba(34, 197, 94, 0.5);
+            --primary: #22c55e;
+            --primary-dark: #16a34a;
+            --primary-light: #4ade80;
+            --accent: #d4a853;
+            --accent-light: #e8c97a;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef3 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
             min-height: 100vh;
-            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 1400px;
+        /* Grid Background */
+        .grid-background {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1200px;
+            height: 500px;
+            background: radial-gradient(ellipse at center top, rgba(34, 197, 94, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Navigation */
+        .nav {
+            position: relative;
+            z-index: 100;
+            padding: 1rem 2rem;
+            backdrop-filter: blur(20px);
+            background: rgba(5, 10, 5, 0.8);
+            border-bottom: 1px solid rgba(60, 100, 60, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
         }
 
-        .header h1 {
-            font-size: 3rem;
-            color: #1a202c;
-            margin-bottom: 15px;
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-title {
+            font-size: 1.25rem;
             font-weight: 700;
+            color: var(--foreground);
         }
 
-        .header p {
-            font-size: 1.1rem;
-            color: #718096;
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--foreground-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        .main-grid {
+        .nav-back:hover {
+            color: var(--foreground);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-back svg {
+            transition: transform 0.2s ease;
+        }
+
+        .nav-back:hover svg {
+            transform: translateX(-3px);
+        }
+
+        /* Main Layout */
+        .main {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .page-header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .page-header p {
+            color: var(--foreground-muted);
+            font-size: 1.05rem;
+        }
+
+        .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 2rem;
             align-items: start;
         }
 
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        /* Glassmorphism Card */
+        .glass-card {
+            background: var(--card-solid);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.3), transparent);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
         }
 
-        .card-header-icon {
-            font-size: 1.5rem;
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon svg {
+            width: 22px;
+            height: 22px;
+            color: var(--primary);
         }
 
         .card-header h2 {
-            font-size: 1.5rem;
-            color: #1a202c;
+            font-size: 1.25rem;
             font-weight: 600;
         }
 
-        .form-row {
+        /* Form Styles */
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 1.25rem;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: formReveal 0.4s ease forwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.15s; }
+        .form-group:nth-child(3) { animation-delay: 0.2s; }
+        .form-group:nth-child(4) { animation-delay: 0.25s; }
+        .form-group:nth-child(5) { animation-delay: 0.3s; }
+        .form-group:nth-child(6) { animation-delay: 0.35s; }
+
+        @keyframes formReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .form-label {
-            display: block;
-            font-size: 0.95rem;
-            color: #4a5568;
-            margin-bottom: 8px;
+            font-size: 0.9rem;
             font-weight: 500;
+            color: var(--foreground-muted);
         }
 
         .input-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
         }
 
         .input-icon {
             position: absolute;
-            left: 16px;
-            font-size: 1.2rem;
-            color: #a0aec0;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--foreground-muted);
             pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .input-icon svg {
+            width: 18px;
+            height: 18px;
         }
 
         .form-input,
         .form-select {
             width: 100%;
-            padding: 14px 16px 14px 48px;
-            border: 2px solid #e2e8f0;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
             border-radius: 12px;
-            font-size: 1rem;
-            color: #2d3748;
-            background: #f7fafc;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            color: var(--foreground);
+            font-family: inherit;
+            transition: all 0.2s ease;
             outline: none;
+        }
+
+        .form-input::placeholder {
+            color: var(--foreground-muted);
+            opacity: 0.7;
         }
 
         .form-input:focus,
         .form-select:focus {
-            border-color: #48bb78;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-input:focus + .input-icon,
+        .form-select:focus + .input-icon {
+            color: var(--primary);
         }
 
         .form-select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239ca89c' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 45px;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
         }
 
-        /* ===== Flash reveal for inputs ===== */
-
-        /* ===== Flash reveal animation ===== */
-
-        .card,
-        .result-card,
-        .form-group,
-        .btn-predict {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.5s ease;
+        .form-select option {
+            background: var(--background);
+            color: var(--foreground);
         }
 
-        .card.show,
-        .result-card.show,
-        .form-group.show,
-        .btn-predict.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-
+        /* Submit Button */
         .btn-predict {
             width: 100%;
-            padding: 18px 32px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            margin-top: 1.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
+            border-radius: 14px;
+            font-size: 1rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 0.75rem;
             transition: all 0.3s ease;
-            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: formReveal 0.4s ease 0.4s forwards;
         }
 
-        .btn-predict:hover {
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-predict:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+            box-shadow: 0 15px 35px rgba(34, 197, 94, 0.35);
+        }
+
+        .btn-predict:hover::before {
+            opacity: 1;
         }
 
         .btn-predict:active {
@@ -188,171 +377,260 @@
             cursor: not-allowed;
         }
 
+        .btn-predict svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Result Card */
         .result-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-            min-height: 400px;
+            min-height: 480px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s ease;
+            text-align: center;
+            animation-delay: 0.1s;
         }
 
         .result-placeholder {
-            text-align: center;
-            color: #a0aec0;
+            color: var(--foreground-muted);
         }
 
         .result-placeholder-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-placeholder-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary);
             opacity: 0.5;
         }
 
-        .result-placeholder p {
+        .result-placeholder h3 {
             font-size: 1.1rem;
-            line-height: 1.6;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--foreground);
         }
 
+        .result-placeholder p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+        }
+
+        /* Result Content */
         .result-content {
             display: none;
-            text-align: center;
             width: 100%;
-            animation: fadeIn 0.5s ease;
+            animation: scaleIn 0.5s ease;
         }
 
         .result-content.show {
             display: block;
         }
 
-        @keyframes fadeIn {
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-success-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-success-icon svg {
+            width: 36px;
+            height: 36px;
+            color: var(--primary);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--foreground-muted);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-unit {
+            font-size: 1rem;
+            color: var(--foreground-muted);
+            margin-bottom: 2rem;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .result-detail-item {
+            padding: 1rem;
+            background: rgba(34, 197, 94, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(34, 197, 94, 0.1);
+        }
+
+        .result-detail-label {
+            font-size: 0.8rem;
+            color: var(--foreground-muted);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-detail-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        /* Crop Icons */
+        .crop-icon-display {
+            width: 48px;
+            height: 48px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .result-icon-large {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
-        .result-value {
-            margin: 30px 0;
-        }
-
-        .result-value h2 {
-            font-size: 3.5rem;
-            color: #48bb78;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .result-value p {
-            font-size: 1rem;
-            color: #718096;
-        }
-
-        .result-details {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #e2e8f0;
-        }
-
-        .result-detail-item {
-            text-align: center;
-        }
-
-        .result-detail-label {
-            font-size: 0.9rem;
-            color: #718096;
-            margin-bottom: 5px;
-        }
-
-        .result-detail-value {
-            font-size: 1.1rem;
-            color: #2d3748;
-            font-weight: 600;
-        }
-
-        .spinner {
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .main-grid {
+        /* Responsive */
+        @media (max-width: 900px) {
+            .dashboard-grid {
                 grid-template-columns: 1fr;
             }
 
-            .header h1 {
-                font-size: 2.5rem;
+            .result-card {
+                min-height: 400px;
             }
         }
 
         @media (max-width: 640px) {
-            .form-row {
+            .main {
+                padding: 2rem 1rem;
+            }
+
+            .form-grid {
                 grid-template-columns: 1fr;
             }
 
+            .glass-card {
+                padding: 1.5rem;
+            }
+
             .result-details {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .card {
-                padding: 25px;
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Predict Your Crop Yield</h1>
-            <p>Enter your agricultural parameters below to get an accurate yield prediction</p>
+    <!-- Background Elements -->
+    <div class="grid-background"></div>
+    <div class="grid-glow"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="nav-title">CropYield AI</span>
+            </a>
+            <a href="/" class="nav-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span>Back to Home</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="page-header">
+            <h1>Crop Yield Prediction</h1>
+            <p>Enter your agricultural parameters to get an AI-powered yield estimate</p>
         </div>
 
-        <div class="main-grid">
-            <!-- Input Parameters Card -->
-            <div class="card">
+        <div class="dashboard-grid">
+            <!-- Input Form Card -->
+            <div class="glass-card">
                 <div class="card-header">
-                    <span class="card-header-icon">🌾</span>
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                        </svg>
+                    </div>
                     <h2>Input Parameters</h2>
                 </div>
 
                 <form id="predictionForm">
-                    <div class="form-row">
+                    <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Region / Area</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">📍</span>
                                 <select name="area" id="area" class="form-select" required>
                                     <option value="">Select region</option>
                                     <option value="Albania">Albania</option>
@@ -388,13 +666,18 @@
                                     <option value="Zambia">Zambia</option>
                                     <option value="Zimbabwe">Zimbabwe</option>
                                 </select>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Crop Type (Item)</label>
+                            <label class="form-label">Crop Type</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🌱</span>
                                 <select name="item" id="item" class="form-select" required>
                                     <option value="">Select crop</option>
                                     <option value="Maize">Maize</option>
@@ -408,76 +691,100 @@
                                     <option value="Plantains and others">Plantains and others</option>
                                     <option value="Yams">Yams</option>
                                 </select>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2a9 9 0 0 0-9 9c0 3.6 3 6.5 4.5 8 1.5 1.5 3 2 4.5 2s3-.5 4.5-2c1.5-1.5 4.5-4.4 4.5-8a9 9 0 0 0-9-9z"/>
+                                        <path d="M12 2v9"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Year</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">📅</span>
-                                <input type="number" name="year" id="year" class="form-input" placeholder="e.g., 2025"
-                                    min="1990" max="2030" required>
+                                <input type="number" name="year" id="year" class="form-input" placeholder="e.g., 2025" min="1990" max="2030" required>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Avg. Rainfall (mm/year)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">💧</span>
-                                <input type="number" name="rainfall" id="rainfall" class="form-input"
-                                    placeholder="e.g., 1200" step="any" required>
+                                <input type="number" name="rainfall" id="rainfall" class="form-input" placeholder="e.g., 1200" step="any" required>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Pesticides (tonnes)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🧪</span>
-                                <input type="number" name="pesticides" id="pesticides" class="form-input"
-                                    placeholder="e.g., 25.5" step="any" required>
+                                <input type="number" name="pesticides" id="pesticides" class="form-input" placeholder="e.g., 25.5" step="any" required>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 4h-4a2 2 0 0 0-2 2v2h8V6a2 2 0 0 0-2-2z"/>
+                                        <path d="M8 8v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V8"/>
+                                        <path d="M12 8v6"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Avg. Temperature (°C)</label>
+                            <label class="form-label">Avg. Temperature (C)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🌡️</span>
-                                <input type="number" name="avg_temp" id="avg_temp" class="form-input"
-                                    placeholder="e.g., 28.5" step="any" required>
+                                <input type="number" name="avg_temp" id="avg_temp" class="form-input" placeholder="e.g., 28.5" step="any" required>
+                                <span class="input-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+                                    </svg>
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <button type="submit" class="btn-predict" id="submitBtn">
-                        <span>📈</span>
+                        <svg id="btnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20V10M18 20V4M6 20v-4"/>
+                        </svg>
                         <span id="btnText">Predict Yield</span>
                     </button>
                 </form>
             </div>
 
-            <!-- Prediction Result Card -->
-            <div class="result-card">
+            <!-- Result Card -->
+            <div class="glass-card result-card">
                 <div class="result-placeholder" id="resultPlaceholder">
-                    <div class="result-placeholder-icon">📈</div>
-                    <p>Fill in the parameters and click<br>predict to see results</p>
+                    <div class="result-placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20V10M18 20V4M6 20v-4"/>
+                        </svg>
+                    </div>
+                    <h3>Waiting for Input</h3>
+                    <p>Fill in the parameters and click predict to see your crop yield estimate</p>
                 </div>
 
                 <div class="result-content" id="resultContent">
-                    <div class="card-header" style="justify-content: center; margin-bottom: 20px;">
-                        <span class="card-header-icon">📈</span>
-                        <h2>Prediction Result</h2>
+                    <div class="result-success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
                     </div>
-
-                    <div class="result-icon-large">🌾</div>
-
-                    <div class="result-value">
-                        <h2 id="predictionValue">0</h2>
-                        <p>hg/ha (hectograms per hectare)</p>
-                    </div>
+                    <div class="result-label">Predicted Yield</div>
+                    <div class="result-value" id="predictionValue">0</div>
+                    <div class="result-unit">hg/ha (hectograms per hectare)</div>
 
                     <div class="result-details">
                         <div class="result-detail-item">
@@ -492,43 +799,16 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        // Crop icon mapping
-        const cropIcons = {
-            'Maize': '🌽',
-            'Potatoes': '🥔',
-            'Rice, paddy': '🍚',
-            'Sorghum': '🌾',
-            'Soybeans': '🫘',
-            'Wheat': '🌾',
-            'Cassava': '🥔',
-            'Sweet potatoes': '🍠',
-            'Plantains and others': '🍌',
-            'Yams': '🥔'
-        };
-
-        // Get the crop select element and icon span
-        const cropSelect = document.getElementById('item');
-        const cropIconSpan = cropSelect.previousElementSibling;
-
-        // Change icon when crop is selected
-        cropSelect.addEventListener('change', function () {
-            const selectedCrop = this.value;
-            if (selectedCrop && cropIcons[selectedCrop]) {
-                cropIconSpan.textContent = cropIcons[selectedCrop];
-            } else {
-                cropIconSpan.textContent = '🌱'; // Default icon
-            }
-        });
-
         // Form submission
-        document.getElementById('predictionForm').addEventListener('submit', async function (e) {
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
             const resultPlaceholder = document.getElementById('resultPlaceholder');
             const resultContent = document.getElementById('resultContent');
 
@@ -542,10 +822,11 @@
 
             // Show loading state
             submitBtn.disabled = true;
-            btnText.innerHTML = '<span class="spinner">🌱</span> Analyzing...';
+            btnText.textContent = 'Analyzing...';
+            btnIcon.classList.add('btn-spinner');
+            btnIcon.innerHTML = '<circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>';
 
             try {
-                // Call your Flask backend
                 const response = await fetch('/predict_data', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -562,8 +843,8 @@
                 const data = await response.json();
                 const prediction = data.prediction;
 
-                // Display result
-                document.getElementById('predictionValue').textContent = prediction.toLocaleString();
+                // Animate the number
+                animateNumber(document.getElementById('predictionValue'), 0, prediction, 1000);
                 document.getElementById('resultCrop').textContent = item;
                 document.getElementById('resultRegion').textContent = area;
 
@@ -577,40 +858,35 @@
             } finally {
                 // Reset button
                 submitBtn.disabled = false;
-                btnText.innerHTML = 'Predict Yield';
+                btnText.textContent = 'Predict Yield';
+                btnIcon.classList.remove('btn-spinner');
+                btnIcon.innerHTML = '<path d="M12 20V10M18 20V4M6 20v-4"/>';
             }
         });
+
+        // Number animation function
+        function animateNumber(element, start, end, duration) {
+            const startTime = performance.now();
+            const diff = end - start;
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function (ease-out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + diff * easeOut);
+                
+                element.textContent = current.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
     </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const elements = document.querySelectorAll(
-                ".card, .result-card, .form-group, .btn-predict"
-            );
-
-            const observer = new IntersectionObserver((entries) => {
-
-                entries.forEach(entry => {
-
-                    if (entry.isIntersecting) {
-                        const index = [...elements].indexOf(entry.target);
-
-                        setTimeout(() => {
-                            entry.target.classList.add("show");
-                        }, index * 150);
-
-                    } else {
-                        entry.target.classList.remove("show");
-                    }
-
-                });
-
-            }, { threshold: 0.2 });
-
-            elements.forEach(el => observer.observe(el));
-        });
-    </script>
-
 </body>
 
 </html>
