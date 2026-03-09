@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crop Yield Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,33 +13,127 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --background: #0a0f0a;
+            --background-secondary: #0f1a0f;
+            --foreground: #ffffff;
+            --foreground-muted: #a3b8a3;
+            --card: #121f12;
+            --card-hover: #1a2d1a;
+            --primary: #22ff66;
+            --primary-dim: #1acc52;
+            --primary-glow: rgba(34, 255, 102, 0.3);
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --border: #1f3d1f;
+            --border-light: #2d5a2d;
+            --shadow: rgba(34, 255, 102, 0.1);
+            --shadow-intense: rgba(34, 255, 102, 0.25);
+            --input-bg: #0f1a0f;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef3 100%);
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
             min-height: 100vh;
             padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* SVG Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%231f3d1f' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 40px 30px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glowing Orbs */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -150px;
+            right: -100px;
+        }
+
+        .glow-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            bottom: -100px;
+            left: -50px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
             text-align: center;
             margin-bottom: 50px;
+            animation: fadeSlideDown 0.8s ease-out;
+        }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header h1 {
-            font-size: 3rem;
-            color: #1a202c;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--foreground);
             margin-bottom: 15px;
             font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header p {
             font-size: 1.1rem;
-            color: #718096;
+            color: var(--foreground-muted);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--foreground-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
         }
 
         .main-grid {
@@ -49,10 +144,23 @@
         }
 
         .card {
-            background: white;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
         }
 
         .card-header {
@@ -63,12 +171,20 @@
         }
 
         .card-header-icon {
-            font-size: 1.5rem;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 0 20px var(--primary-glow);
         }
 
         .card-header h2 {
             font-size: 1.5rem;
-            color: #1a202c;
+            color: var(--foreground);
             font-weight: 600;
         }
 
@@ -86,7 +202,7 @@
         .form-label {
             display: block;
             font-size: 0.95rem;
-            color: #4a5568;
+            color: var(--foreground-muted);
             margin-bottom: 8px;
             font-weight: 500;
         }
@@ -101,43 +217,52 @@
             position: absolute;
             left: 16px;
             font-size: 1.2rem;
-            color: #a0aec0;
+            color: var(--foreground-muted);
             pointer-events: none;
+            z-index: 1;
         }
 
         .form-input,
         .form-select {
             width: 100%;
             padding: 14px 16px 14px 48px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border);
             border-radius: 12px;
             font-size: 1rem;
-            color: #2d3748;
-            background: #f7fafc;
+            font-family: inherit;
+            color: var(--foreground);
+            background: var(--input-bg);
             transition: all 0.3s ease;
             outline: none;
         }
 
+        .form-input::placeholder {
+            color: var(--foreground-muted);
+            opacity: 0.6;
+        }
+
         .form-input:focus,
         .form-select:focus {
-            border-color: #48bb78;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+            border-color: var(--primary);
+            background: var(--background);
+            box-shadow: 0 0 0 3px var(--shadow);
         }
 
         .form-select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2322ff66' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 16px center;
             padding-right: 45px;
         }
 
-        /* ===== Flash reveal for inputs ===== */
+        .form-select option {
+            background: var(--card);
+            color: var(--foreground);
+        }
 
-        /* ===== Flash reveal animation ===== */
-
+        /* Animation classes */
         .card,
         .result-card,
         .form-group,
@@ -155,61 +280,105 @@
             transform: translateY(0);
         }
 
-
         .btn-predict {
             width: 100%;
             padding: 18px 32px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
+            background: var(--primary);
+            color: var(--background);
             border: none;
             border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-top: 30px;
+            box-shadow: 0 0 30px var(--primary-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-predict:hover::before {
+            left: 100%;
         }
 
         .btn-predict:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 0 50px var(--shadow-intense), 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
         .btn-predict:active {
-            transform: translateY(0);
+            transform: translateY(-2px);
         }
 
         .btn-predict:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none;
         }
 
         .result-card {
-            background: white;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             min-height: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
         }
 
         .result-placeholder {
             text-align: center;
-            color: #a0aec0;
+            color: var(--foreground-muted);
         }
 
         .result-placeholder-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-glow), transparent);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .result-placeholder-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--primary);
         }
 
         .result-placeholder p {
@@ -229,20 +398,32 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result-icon-large {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 40px var(--primary-glow);
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 0 40px var(--primary-glow); }
+            50% { box-shadow: 0 0 60px var(--shadow-intense); }
+        }
+
+        .result-icon-large svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--background);
         }
 
         .result-value {
@@ -250,15 +431,18 @@
         }
 
         .result-value h2 {
-            font-size: 3.5rem;
-            color: #48bb78;
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
         .result-value p {
             font-size: 1rem;
-            color: #718096;
+            color: var(--foreground-muted);
         }
 
         .result-details {
@@ -267,7 +451,7 @@
             gap: 40px;
             margin-top: 30px;
             padding-top: 30px;
-            border-top: 2px solid #e2e8f0;
+            border-top: 1px solid var(--border);
         }
 
         .result-detail-item {
@@ -276,13 +460,13 @@
 
         .result-detail-label {
             font-size: 0.9rem;
-            color: #718096;
+            color: var(--foreground-muted);
             margin-bottom: 5px;
         }
 
         .result-detail-value {
             font-size: 1.1rem;
-            color: #2d3748;
+            color: var(--foreground);
             font-weight: 600;
         }
 
@@ -292,13 +476,8 @@
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 1024px) {
@@ -312,6 +491,10 @@
         }
 
         @media (max-width: 640px) {
+            body {
+                padding: 20px 15px;
+            }
+
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -333,9 +516,20 @@
 </head>
 
 <body>
+    <!-- Background Elements -->
+    <div class="bg-pattern"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+
     <div class="container">
         <div class="header">
-            <h1>Predict Your Crop Yield</h1>
+            <a href="/" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Home
+            </a>
+            <h1>Predict Your <span>Crop Yield</span></h1>
             <p>Enter your agricultural parameters below to get an accurate yield prediction</p>
         </div>
 
@@ -343,7 +537,13 @@
             <!-- Input Parameters Card -->
             <div class="card">
                 <div class="card-header">
-                    <span class="card-header-icon">🌾</span>
+                    <div class="card-header-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0f0a" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
                     <h2>Input Parameters</h2>
                 </div>
 
@@ -352,7 +552,12 @@
                         <div class="form-group">
                             <label class="form-label">Region / Area</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">📍</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+                                </span>
                                 <select name="area" id="area" class="form-select" required>
                                     <option value="">Select region</option>
                                     <option value="Albania">Albania</option>
@@ -394,7 +599,11 @@
                         <div class="form-group">
                             <label class="form-label">Crop Type (Item)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🌱</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M7 20h10M10 20c5.5-2.5 8-6 6-10-2 2-5.5 2.5-8 1-2.5-1.5-4.5-4-3-8 4 2 6 5 6 9"/>
+                                    </svg>
+                                </span>
                                 <select name="item" id="item" class="form-select" required>
                                     <option value="">Select crop</option>
                                     <option value="Maize">Maize</option>
@@ -416,7 +625,12 @@
                         <div class="form-group">
                             <label class="form-label">Year</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">📅</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                        <path d="M16 2v4M8 2v4M3 10h18"/>
+                                    </svg>
+                                </span>
                                 <input type="number" name="year" id="year" class="form-input" placeholder="e.g., 2025"
                                     min="1990" max="2030" required>
                             </div>
@@ -425,7 +639,11 @@
                         <div class="form-group">
                             <label class="form-label">Avg. Rainfall (mm/year)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">💧</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+                                    </svg>
+                                </span>
                                 <input type="number" name="rainfall" id="rainfall" class="form-input"
                                     placeholder="e.g., 1200" step="any" required>
                             </div>
@@ -436,7 +654,12 @@
                         <div class="form-group">
                             <label class="form-label">Pesticides (tonnes)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🧪</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a5 5 0 11-4 0"/>
+                                        <path d="M5.52 16h12.96"/>
+                                    </svg>
+                                </span>
                                 <input type="number" name="pesticides" id="pesticides" class="form-input"
                                     placeholder="e.g., 25.5" step="any" required>
                             </div>
@@ -445,7 +668,11 @@
                         <div class="form-group">
                             <label class="form-label">Avg. Temperature (°C)</label>
                             <div class="input-wrapper">
-                                <span class="input-icon">🌡️</span>
+                                <span class="input-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/>
+                                    </svg>
+                                </span>
                                 <input type="number" name="avg_temp" id="avg_temp" class="form-input"
                                     placeholder="e.g., 28.5" step="any" required>
                             </div>
@@ -453,7 +680,9 @@
                     </div>
 
                     <button type="submit" class="btn-predict" id="submitBtn">
-                        <span>📈</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10M12 20V4M6 20v-6"/>
+                        </svg>
                         <span id="btnText">Predict Yield</span>
                     </button>
                 </form>
@@ -462,17 +691,31 @@
             <!-- Prediction Result Card -->
             <div class="result-card">
                 <div class="result-placeholder" id="resultPlaceholder">
-                    <div class="result-placeholder-icon">📈</div>
+                    <div class="result-placeholder-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                            <path d="M18 20V10M12 20V4M6 20v-6"/>
+                        </svg>
+                    </div>
                     <p>Fill in the parameters and click<br>predict to see results</p>
                 </div>
 
                 <div class="result-content" id="resultContent">
                     <div class="card-header" style="justify-content: center; margin-bottom: 20px;">
-                        <span class="card-header-icon">📈</span>
+                        <div class="card-header-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0a0f0a" stroke-width="2">
+                                <path d="M18 20V10M12 20V4M6 20v-6"/>
+                            </svg>
+                        </div>
                         <h2>Prediction Result</h2>
                     </div>
 
-                    <div class="result-icon-large">🌾</div>
+                    <div class="result-icon-large">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
 
                     <div class="result-value">
                         <h2 id="predictionValue">0</h2>
@@ -495,34 +738,6 @@
     </div>
 
     <script>
-        // Crop icon mapping
-        const cropIcons = {
-            'Maize': '🌽',
-            'Potatoes': '🥔',
-            'Rice, paddy': '🍚',
-            'Sorghum': '🌾',
-            'Soybeans': '🫘',
-            'Wheat': '🌾',
-            'Cassava': '🥔',
-            'Sweet potatoes': '🍠',
-            'Plantains and others': '🍌',
-            'Yams': '🥔'
-        };
-
-        // Get the crop select element and icon span
-        const cropSelect = document.getElementById('item');
-        const cropIconSpan = cropSelect.previousElementSibling;
-
-        // Change icon when crop is selected
-        cropSelect.addEventListener('change', function () {
-            const selectedCrop = this.value;
-            if (selectedCrop && cropIcons[selectedCrop]) {
-                cropIconSpan.textContent = cropIcons[selectedCrop];
-            } else {
-                cropIconSpan.textContent = '🌱'; // Default icon
-            }
-        });
-
         // Form submission
         document.getElementById('predictionForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -542,7 +757,7 @@
 
             // Show loading state
             submitBtn.disabled = true;
-            btnText.innerHTML = '<span class="spinner">🌱</span> Analyzing...';
+            btnText.innerHTML = '<span class="spinner" style="display:inline-block">&#10227;</span> Analyzing...';
 
             try {
                 // Call your Flask backend
