@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --background: #050a05;
@@ -36,6 +34,7 @@ body {
   color: var(--foreground);
   line-height: 1.6;
   overflow-x: hidden;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 /* Animations */
@@ -114,3 +113,26 @@ body {
 .animate-scaleIn {
   animation: scaleIn 0.5s ease;
 }
+
+/* Color utilities */
+.text-foreground { color: var(--foreground); }
+.text-foreground-muted { color: var(--foreground-muted); }
+.text-primary { color: var(--primary); }
+.text-primary-light { color: var(--primary-light); }
+.text-accent { color: var(--accent); }
+
+.bg-background { background-color: var(--background); }
+.bg-card { background-color: var(--card); }
+.bg-card-solid { background-color: var(--card-solid); }
+.bg-primary { background-color: var(--primary); }
+.bg-primary-dark { background-color: var(--primary-dark); }
+.bg-primary-light { background-color: var(--primary-light); }
+
+.border-card-border { border-color: var(--card-border); }
+.border-card-border-hover { border-color: var(--card-border-hover); }
+
+/* Gradient utilities */
+.from-primary { --tw-gradient-from: var(--primary); }
+.to-primary-dark { --tw-gradient-to: var(--primary-dark); }
+.from-primary-light { --tw-gradient-from: var(--primary-light); }
+.to-accent { --tw-gradient-to: var(--accent); }
